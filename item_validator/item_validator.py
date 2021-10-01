@@ -55,7 +55,7 @@ def main():
     Run Script on file path, check all .yml files in input directory against validation schema and return results.
     """
     parser = argparse.ArgumentParser(description="Validate .yml items")
-    parser.add_argument("--filepath", help="Directory or Filepath", type=dir_path, default=os.getcwd(), required=False)
+    parser.add_argument("filepath", help="Directory or Filepath", type=dir_path, default=os.getcwd())
     args = parser.parse_args()
     if args.filepath[-1] != '/':
         args.filepath = args.filepath + '/'
@@ -79,6 +79,8 @@ def main():
 
     print_pass = f"{TextColours.BOLD}{TextColours.OKGREEN}Pass{TextColours.ENDC}"
     print_fail = f"{TextColours.BOLD}{TextColours.FAIL}Fail{TextColours.FAIL}"
+
+    GLOBAL_PASS = True
 
     for file in item_descriptions:
         valid = True
@@ -158,7 +160,12 @@ def main():
                   f"{TextColours.FAIL}{v.errors}{TextColours.ENDC}")
         if valid:
             print(print_pass)
+        else:
+            GLOBAL_PASS = False
 
+    # Return a non-zero exit code if any of the validation tests fail, so that it can work in CI
+    if not GLOBAL_PASS:
+        exit(1)
 
 if __name__ == '__main__':
-    exit(main())
+    main()
